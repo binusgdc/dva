@@ -1,84 +1,93 @@
 import { Logger } from "../util/loggers/logger"
 import { Result, error, ok } from "../util/result"
-import { DaftarUlangData } from "./daftarUlangData"
+import { DaftarUlangData, DaftarUlangDataEntry } from "./daftarUlangData"
 import {
     DiscordServerClient,
     MemberRoleDetails,
     MemberRegion,
     BinusianAngkatan,
 } from "./discordServerClient"
-import {
-    ValidatedRegistrationData,
-    ValidatedRegistrationDataEntry,
-} from "./validatedRegistrationData"
 
 export class MemberVerificationService {
     private readonly daftarUlangData: DaftarUlangData
-    private readonly validatedRegistrationData: ValidatedRegistrationData
     private readonly discordServerClient: DiscordServerClient
     private readonly logger: Logger
 
     constructor(
         daftarUlangData: DaftarUlangData,
-        validatedRegistrationData: ValidatedRegistrationData,
         discordServerClient: DiscordServerClient,
         logger: Logger
     ) {
         this.daftarUlangData = daftarUlangData
-        this.validatedRegistrationData = validatedRegistrationData
         this.discordServerClient = discordServerClient
         this.logger = logger
     }
 
-    public async validateMembers(batchSize: number = 100, dryRun: boolean = true) {
-        const queue = await this.daftarUlangData.getUnprocessed(batchSize)
+    public async verifyMembers(batchSize: number, isDryRun: boolean) {
+        const peekQueueResult = await this.daftarUlangData.peekUnprocessed(batchSize)
+
+        if (!peekQueueResult.ok) {
+            void this.logger.fatal("Unable to access registration data. Exiting...")
+            return
+        }
+
+        const queue = peekQueueResult.value
+
         void this.logger.info(
-            `${dryRun ? "[DRY RUN] " : ""}Booting up. Starting verification process, loaded ${
+            `${isDryRun ? "[DRY RUN] " : ""}Booting up. Starting verification process, loaded ${
                 queue.length
             } unprocessed entries.`
         )
-        for (const daftarUlangEntry of queue) {
+
+        let processedNims: string[] = []
+
+        for (const entry of queue) {
             void this.logger.info(
-                `Processing: <@${daftarUlangEntry.discordUid}> | ${daftarUlangEntry.nim} ${daftarUlangEntry.name}`
+                `Processing: <@${entry.discordUid}> | ${entry.nim} ${entry.name} from ${entry.region}`
             )
-            void this.logger.info(`Searching in validated registrations:`)
-            const validatedEntry = await this.validatedRegistrationData.searchByNim(
-                daftarUlangEntry.nim
-            )
-
-            if (validatedEntry === undefined) {
-                void this.logger.error(
-                    `<@${daftarUlangEntry.discordUid}> not found in validated registration data. Moving on...`
-                )
-                continue
-            }
-
-            void this.logger.info(`Member found. Parsing Roles...`)
-
-            const parseRolesResult = this.parseMemberRoleDetails(validatedEntry)
+            void this.logger.info(`Parsing Roles...`)
+            const parseRolesResult = this.parseMemberRoleDetails(entry)
 
             if (!parseRolesResult.ok) {
                 let errStr = `Roles could not be parsed: `
                 if (parseRolesResult.error.regionParseError) {
-                    errStr += `Region "${validatedEntry.homeRegion}" could not be parsed. `
+                    errStr += `Region "${entry.region}" could not be parsed. `
                 }
                 if (parseRolesResult.error.angkatanParseError) {
-                    errStr += `NIM "${validatedEntry.nim}" could not be parsed into angkatan.`
+                    errStr += `NIM "${entry.nim}" could not be parsed into angkatan.`
                 }
                 void this.logger.error(errStr)
+                void this.logger.error(`Skipping <@${entry.discordUid}>...`)
                 continue
             }
 
-            const addRolesResult = await this.discordServerClient.applyMemberRoles(
-                daftarUlangEntry.discordUid,
-                parseRolesResult.value
-            )
+            void this.logger.info(`Distributing roles for <@${entry.discordUid}>...`)
 
-            void this.logger.info(`Roles distributed for <@${daftarUlangEntry.discordUid}>`)
+            if (!isDryRun) {
+                try {
+                    await this.discordServerClient.applyRoleDistribution(
+                        entry.discordUid,
+                        parseRolesResult.value
+                    )
+                    void this.logger.info(`Roles distributed for <@${entry.discordUid}>`)
+                } catch (error) {
+                    void this.logger.error(`Error distributing roles: ${error}`)
+                    void this.logger.info(`Aborting process due to failure...`)
+                    return
+                }
+            }
+
+            processedNims.push(entry.nim)
+        }
+
+        void this.logger.info(`Batch finished. Processed: ${processedNims.length}.`)
+
+        if (!isDryRun) {
+            await this.daftarUlangData.popUnprocessed(processedNims)
         }
     }
 
-    private parseMemberRoleDetails(entry: ValidatedRegistrationDataEntry): Result<
+    private parseMemberRoleDetails(entry: DaftarUlangDataEntry): Result<
         MemberRoleDetails,
         {
             regionParseError: boolean
@@ -111,7 +120,7 @@ export class MemberVerificationService {
         function parseAngkatanFromNimStr(nim: string): BinusianAngkatan | undefined {
             return nim.startsWith("24")
                 ? "B24"
-                : nim.startsWith("B25")
+                : nim.startsWith("25")
                 ? "B25"
                 : nim.startsWith("26")
                 ? "B26"
@@ -120,7 +129,7 @@ export class MemberVerificationService {
                 : undefined
         }
 
-        const regionParsed = parseRegionStr(entry.homeRegion)
+        const regionParsed = parseRegionStr(entry.region)
         const angkatanParsed = parseAngkatanFromNimStr(entry.nim)
 
         if (regionParsed === undefined || angkatanParsed === undefined) {
