@@ -1,48 +1,16 @@
-import { Logger } from "./util/loggers/logger"
-import { Result, error, ok } from "./util/result"
-
-export type DaftarUlangDataEntry = {
-    name: string
-    nim: string
-    discordUid: string
-}
-
-export interface DaftarUlangData {
-    getUnprocessed(limit: number): Promise<DaftarUlangDataEntry[]>
-    batchMarkAsProcessed(nims: string[]): void
-}
-
-export type ValidatedRegistrationDataEntry = {
-    name: string
-    nim: string
-    homeRegion: string
-}
-
-export interface ValidatedRegistrationData {
-    searchByNim(nim: string): Promise<ValidatedRegistrationDataEntry | undefined>
-    batchSearchByNim(nims: string[]): Promise<Map<string, ValidatedRegistrationDataEntry>>
-}
-
-export type MemberRegion =
-    | "Kemanggisan"
-    | "AlamSutera"
-    | "Bandung"
-    | "Malang"
-    | "Semarang"
-    | "Senayan"
-    | "Bekasi"
-    | "Online"
-
-export type BinusianAngkatan = "B24" | "B25" | "B26" | "B27"
-
-export type MemberRoleDetails = {
-    angkatan: BinusianAngkatan
-    region: MemberRegion
-}
-
-export interface DiscordServerClient {
-    applyMemberRoles(discordUserId: string, memberRoleDetails: MemberRoleDetails): Promise<boolean>
-}
+import { Logger } from "../util/loggers/logger"
+import { Result, error, ok } from "../util/result"
+import { DaftarUlangData } from "./daftarUlangData"
+import {
+    DiscordServerClient,
+    MemberRoleDetails,
+    MemberRegion,
+    BinusianAngkatan,
+} from "./discordServerClient"
+import {
+    ValidatedRegistrationData,
+    ValidatedRegistrationDataEntry,
+} from "./validatedRegistrationData"
 
 export class MemberVerificationService {
     private readonly daftarUlangData: DaftarUlangData
