@@ -70,14 +70,11 @@ export class MemberVerificationService {
                         parseRolesResult.value
                     )
                     void this.logger.info(`Roles distributed for <@${entry.discordUid}>`)
+                    processedNims.push(entry.nim)
                 } catch (error) {
                     void this.logger.error(`Error distributing roles: ${error}`)
-                    void this.logger.info(`Aborting process due to failure...`)
-                    return
                 }
             }
-
-            processedNims.push(entry.nim)
         }
 
         void this.logger.info(`Batch finished. Processed: ${processedNims.length}.`)
