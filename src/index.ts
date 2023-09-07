@@ -87,7 +87,7 @@ async function main() {
         }
 
         console.log(`>>> Logged in as ${botClient.user.tag}`)
-        console.log(">>> Bonjour!")
+        console.log(">>> Hyvää päivää!")
     })
     botClient.on("interactionCreate", async (interaction) => {
         if (!interaction.isChatInputCommand()) return
