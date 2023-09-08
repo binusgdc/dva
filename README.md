@@ -23,7 +23,7 @@
 
 ### Minor Dependencies
 
--   [zod](https://zod.dev/) | For parsing expected shapes from Sheets.
+-   [zod](https://zod.dev/) | For parsing typed structs from unstructured data such as environment variables and data from Sheets.
 -   [immutable-js](https://immutable-js.com/) | For fast immutable data structures.
 
 ## Architecture
