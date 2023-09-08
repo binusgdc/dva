@@ -4,11 +4,16 @@
 
 ## Quick Start
 
-1. Create an application at the [discord developer portal](https://discord.com/developers/applications)
-2. Clone the repository
-3. Create a .env file (see example.env) at the repository root
-4. Install dependencies with (`npm install`)
-5. Build (`npm run build`) and run (`npm start`)
+1. Create a Google Cloud Project.
+2. Activate the Google Sheets API and create a service account.
+3. Make sure this service account has access to the spreadsheet used, share to it using its email as if it were a normal user.
+4. Create a key credential for this account and download it as a JSON file.
+5. Encode this file into a base64 string (without newlines).
+6. Create an application at the [discord developer portal](https://discord.com/developers/applications)
+7. Clone the repository
+8. Create a .env file (see example.env) at the repository root
+9. Install dependencies with (`npm install`)
+10. Build (`npm run build`) and run (`npm start`)
 
 ## Contribution Guide
 
