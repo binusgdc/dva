@@ -1,4 +1,4 @@
-# VCPA
+# DVA
 
 `DVA` is a Discord bot that reads google sheets data to verify members on the discord server and assign roles according to their region & Binusian angkatan.
 
@@ -12,7 +12,7 @@
 
 ## Contribution Guide
 
--   This project uses the [Prettier](https://prettier.io/) code formatter. Please make sure code is formatted submitting for pull request.
+-   This project uses the [Prettier](https://prettier.io/) code formatter. Please make sure code is formatted before submitting a pull request.
 
 ## Dependencies
 
