@@ -21,8 +21,8 @@ export class VerifyStudentsCommandHandler extends AbstractCommandHandler {
             description: "Verify students based on class registration data",
             options: [
                 {
-                    name: "start-row",
-                    description: "The row to start on the gsheet.",
+                    name: "startrow",
+                    description: "The row to start on the gsheet. Must be at least 2",
                     type: ApplicationCommandOptionType.Integer,
                     required: true,
                 },
@@ -38,7 +38,7 @@ export class VerifyStudentsCommandHandler extends AbstractCommandHandler {
     }
 
     public async handle(interaction: ChatInputCommandInteraction) {
-        const startRow = interaction.options.getInteger("startRow") ?? 2
+        const startRow = interaction.options.getInteger("startrow") ?? 2
         const batchSize = interaction.options.getInteger("batchsize") ?? 5
 
         await interaction.reply("Command Received.")
