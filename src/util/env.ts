@@ -4,6 +4,7 @@ const rawSchema = z.object({
     BOT_TOKEN: z.string().nonempty(),
     LOG_CHANNEL_ID: z.string().nonempty(),
     REREGIST_SHEET_ID: z.string().nonempty(),
+    STUDENT_SHEET_ID: z.string().nonempty(),
     GSHEETS_JSON_KEY_64: z.string().nonempty(),
     GUILD_ID: z.string().nonempty(),
     VISITOR_ROLE_ID: z.string().nonempty(),
@@ -21,12 +22,14 @@ const rawSchema = z.object({
     BKS_ROLE_ID: z.string().nonempty(),
     SMG_ROLE_ID: z.string().nonempty(),
     ONL_ROLE_ID: z.string().nonempty(),
+    STUDENT_ROLE_ID: z.string().nonempty(),
 })
 
 const envSchema = z.object({
     BOT_TOKEN: z.string().nonempty(),
     LOG_CHANNEL_ID: z.string().nonempty(),
     REREGIST_SHEET_ID: z.string().nonempty(),
+    STUDENT_SHEET_ID: z.string().nonempty(),
     GSHEETS_CREDENTIALS: z.object({
         project_id: z.string().nonempty(),
         private_key: z.string().nonempty(),
@@ -48,6 +51,7 @@ const envSchema = z.object({
     BKS_ROLE_ID: z.string().nonempty(),
     SMG_ROLE_ID: z.string().nonempty(),
     ONL_ROLE_ID: z.string().nonempty(),
+    STUDENT_ROLE_ID: z.string().nonempty(),
 })
 
 export type Env = z.infer<typeof envSchema>
