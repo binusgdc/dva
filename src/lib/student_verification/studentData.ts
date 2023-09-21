@@ -30,7 +30,7 @@ export class SheetsStudentData implements StudentData{
         try {
             const sheetsGetEntriesResult = await this.sheetsClient.spreadsheets.values.get({
                 spreadsheetId: this.spreadsheetId,
-                range: `Student to Assign to!A${start}:F${limit + 1}`,
+                range: `Student to Assign to!A${start}:C${limit + 1}`,
             })
 
             const studentParseResult = sheetsGetEntriesResult.data.values
