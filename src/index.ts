@@ -10,6 +10,10 @@ import { SheetsDaftarUlangData } from "./lib/daftarUlangData"
 import { DiscordServerClient } from "./lib/discordServerClient"
 import { CompositeLogger } from "./util/loggers/compositeLogger"
 import { ConsoleLogger } from "./util/loggers/consoleLogger"
+import { StudentVerificationService} from "./lib/student_verification/studentVerification"
+import { SheetsStudentData } from "./lib/student_verification/studentData"
+import { StudentDiscordServerClient } from "./lib/student_verification/studentDiscordServerClient"
+import { VerifyStudentsCommandHandler } from "./commands/verifyStudents"
 
 async function main() {
     const env = loadAndParseEnv()
@@ -68,8 +72,23 @@ async function main() {
         new CompositeLogger([discordChannelLogger, new ConsoleLogger()])
     )
 
+    //verify students stuffs
+    const studentData = new SheetsStudentData(sheetsClient, env.STUDENT_SHEET_ID)
+    const studentDiscordServerClient = new StudentDiscordServerClient(
+        restClient,
+        env.GUILD_ID,
+        env.STUDENT_ROLE_ID
+    )
+
+    const studentVerificationService = new StudentVerificationService(
+        studentData,
+        studentDiscordServerClient,
+        new CompositeLogger([discordChannelLogger, new ConsoleLogger()])
+    )
+
     const commands: AbstractCommandHandler[] = [
         new VerifyMembersCommandHandler(memberVerificationService),
+        new VerifyStudentsCommandHandler(studentVerificationService)
     ]
     const router = new RoutingCommandHandler(
         commands.map((c) => ({ route: c.getSignature().name, handler: c }))
