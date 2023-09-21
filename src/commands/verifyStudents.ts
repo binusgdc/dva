@@ -6,9 +6,8 @@ import {
 } from "discord.js"
 import { AbstractCommandHandler } from "../discord/commandHandler"
 import { StudentVerificationService } from "../lib/student_verification/studentVerification"
-import { start } from "repl"
 
-export class VerifyMembersCommandHandler extends AbstractCommandHandler {
+export class VerifyStudentsCommandHandler extends AbstractCommandHandler {
     private readonly studentVerificationService: StudentVerificationService
 
     constructor(studentVerificationService: StudentVerificationService) {
