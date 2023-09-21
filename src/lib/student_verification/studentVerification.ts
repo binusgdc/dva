@@ -31,7 +31,7 @@ export class StudentVerificationService{
 
         const queue = peekQueueResult.value
 
-        let unprocessedNims: string = ""
+        let unprocessedNims: string[] = [] 
 
         for (const entry of queue) {
             void this.logger.info(
@@ -46,12 +46,14 @@ export class StudentVerificationService{
                 void this.logger.info(`Roles distributed for <@${entry.discordUid}>`)
             } catch (error) {
                 void this.logger.error(`Error distributing roles: ${error}`)
-                unprocessedNims += entry.nim + " "
+                unprocessedNims.push(entry.nim)
             }
             
         }
 
-        void this.logger.info(`Batch finished. Here are the list of unprocessed NIMs: ${unprocessedNims == ""? "None" : unprocessedNims}`)
+        void this.logger.info(`Batch finished. Here are the list of unprocessed NIMs: ${
+            unprocessedNims.length == 0 ? "None" : unprocessedNims.join(" ")
+        }`)
     }
 }
 
