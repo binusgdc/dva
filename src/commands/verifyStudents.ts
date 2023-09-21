@@ -21,7 +21,7 @@ export class VerifyStudentsCommandHandler extends AbstractCommandHandler {
             description: "Verify students based on class registration data",
             options: [
                 {
-                    name: "startRow",
+                    name: "start-row",
                     description: "The row to start on the gsheet.",
                     type: ApplicationCommandOptionType.Integer,
                     required: true,
