@@ -5,7 +5,7 @@ import {
     StudentDiscordServerClient,
 } from "./studentDiscordServerClient"
 
-class StudentVerificationService{
+export class StudentVerificationService{
 
     private readonly studentData: StudentData
     private readonly discordServerClient: StudentDiscordServerClient
